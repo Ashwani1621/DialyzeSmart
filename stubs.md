@@ -9,10 +9,14 @@ items below are what still stands between the current dev build and a genuinely
 Each section lists: **what's stubbed**, **current behaviour**, **what "real" needs**,
 and the **clean seam** — the exact file/function to change so the swap is contained.
 
+> **Update (2026-07-01):** item **1 (Real ML risk prediction)** has since been
+> implemented and is retained below as a ✅ record of what was done. Items 2–7 are
+> the genuinely-open work.
+
 ## Contents
 
-1. [Real ML risk prediction](#1-real-ml-risk-prediction) — flagship
-2. [Backend authentication & authorization](#2-backend-authentication--authorization)
+1. [Real ML risk prediction](#1-real-ml-risk-prediction) — ✅ done (in-process)
+2. [Backend authentication & authorization](#2-backend-authentication--authorization) — flagship remaining
 3. [Notifications](#3-notifications)
 4. [Global search](#4-global-search)
 5. [Profile editing](#5-profile-editing)
@@ -24,59 +28,39 @@ and the **clean seam** — the exact file/function to change so the swap is cont
 
 ## 1. Real ML risk prediction
 
-**Priority: 🔴 High — blocks a genuinely "complete" build.**
+**Status: ✅ DONE — shipped on `prod`.** The trained Random Forest now drives
+per-session risk; the heuristic only survives as a fallback.
 
-**What's stubbed.** The per-session nutritional/albumin-loss risk
-(`riskLevel`, `riskScore`, `predictedAlbuminLoss`, `recommendation`) is produced by
-a **deterministic heuristic**, not the trained model.
+**What shipped.** `apps/backend/services/prediction_service.py` loads
+`rf_balanced_model.pkl` + `features.pkl` **once at import** (in-process; path via
+`MODEL_DIR`, default `apps/ml-model/src`) and computes `riskLevel` / `riskScore`
+(from `predict_proba`) / `predictedAlbuminLoss` / `recommendation` for every
+session create/update. On any load/predict failure it falls back to the original
+deterministic heuristic, so dev is never blocked. Specifically completed:
 
-**Current behaviour.** `apps/backend/services/prediction_service.py` →
-`predict_session_risk(session_data)` computes a weighted 0–100 score from just four
-already-captured fields (`albuminBefore`, `albuminAfter`, `ktv`, `potassium`) and
-buckets it into Low/Medium/High. It never imports or calls the Random Forest. Its
-return shape already mirrors the real model's contract (`risk_level` 0/1/2 +
-`status` string) specifically so it can be swapped out cleanly.
+- **Model wired in-process** — `predict_session_risk(session_data, patient_data)`
+  builds the 20-feature row and calls the pipeline.
+- **Inputs captured** — comorbidity flags (`diabetes`, `hypertension`,
+  `cardiovascular_disease`) added to the patient forms; `phosphorus` and `crp`
+  added to the session forms.
+- **Field-name / unit reconciliation** — `hemoglobin→hemoglobin_g_dl`,
+  `ktv→kt_v`, `ufVolume→total_uf_volume_ml` (Litres→mL ×1000),
+  `duration→session_duration_hr` (minutes→hours ÷60); engineered features mirror
+  `model_trainer.py`.
+- **`predict.py` bugs fixed** — removed the spurious train/serve epsilon on
+  `uf_intensity`/`ktv_to_age`; artifact paths now resolve via `__file__`.
+- **Versions pinned** — `scikit-learn==1.9.0` (+ numpy/pandas/scipy/joblib) in
+  both `requirements.txt` files; the committed `.pkl` was trained on 1.9.0.
 
-**What "real" needs.**
+**Decision:** kept it **in-process** rather than standing up a FastAPI
+microservice — simpler for this single-process dev backend.
 
-- **Wire in the trained model.** The Random Forest lives at
-  `apps/ml-model/src/predict.py` → `predict_session_risk(session_dict)` and loads
-  `src/rf_balanced_model.pkl` + `src/features.pkl`. The backend currently has no
-  dependency on it.
-- **Capture the ~10 missing model inputs.** The model expects ~17 features; the
-  session form (`apps/frontend/src/components/admin/AddSessionDialog.jsx`) collects
-  only some. Missing inputs the form must add:
-  - `phosphorus_mg_dl`
-  - `crp_mg_l`
-  - `transmembrane_pressure_mmhg`
-  - `ultrafiltration_rate_ml_hr`
-  - `membrane_flux_kuf`
-  - `protein_intake_g`
-  - `calorie_intake_kcal`
-  - comorbidity flags: `diabetes`, `hypertension`, `cardiovascular_disease` (0/1)
-  - `age_years` is available from the patient profile (not the session form).
-- **Reconcile field names & units** between the app payload and the model's feature
-  list: `hemoglobin → hemoglobin_g_dl`, `ktv → kt_v`,
-  `ufVolume → total_uf_volume_ml`, `duration → session_duration_hr` (confirm hours
-  vs minutes). The engineered features the model recreates are
-  `uf_intensity = total_uf_volume_ml / session_duration_hr`,
-  `ktv_to_age = kt_v / age_years`, and
-  `crp_to_flux = crp_mg_l / (membrane_flux_kuf + 0.1)`.
-- **Fix `predict.py` before depending on it:** the train/serve **epsilon mismatch**
-  (it adds `0.001` to two denominators and `0.1` to a third — must match training),
-  the **hardcoded relative artifact paths** (`'src/rf_balanced_model.pkl'`, which
-  only resolve when CWD is `apps/ml-model`), and **pin `scikit-learn` / `numpy`** to
-  the versions the `.pkl` was trained with (unpickling across versions can break).
-- **Stand up a prediction microservice** (e.g. FastAPI) that loads the model once
-  and exposes an inference endpoint, rather than importing scikit-learn into the
-  Flask process. The backend calls it over HTTP.
-
-**Clean seam.** Replace the body of
-`apps/backend/services/prediction_service.py::predict_session_risk` with a call to
-the model (in-process import, or HTTP to the microservice). Callers already use it
-correctly — `apps/backend/services/patient_service.py` invokes it in both
-`create_session` and `update_session` and stores the returned AI fields — so no
-caller changes are needed beyond providing the new input fields.
+**Remaining sub-item (lower fidelity, not blocking).** 5 of the 18 raw model
+inputs are still **median-imputed** by the pipeline rather than captured:
+`transmembrane_pressure_mmhg`, `ultrafiltration_rate_ml_hr`, `membrane_flux_kuf`,
+`protein_intake_g`, `calorie_intake_kcal`. Capturing these in the session form
+would raise prediction fidelity; the model handles their absence today via
+`SimpleImputer(strategy='median')`.
 
 ---
 
@@ -189,13 +173,15 @@ to the repo from the initial commit:
 - `apps/backend/.env`
 - `apps/frontend/.env`
 
-**What "real" needs.** **Rotate the Firebase service-account key regardless** (it has
-been exposed in git history), remove these files from version control and history,
-add them to `.gitignore`, and load the credential path from an environment variable
-instead of a fixed relative path in `apps/backend/config/firebase.py`.
+**Partly addressed.** A root `.gitignore` now covers `.env` + the firebase keys, so
+new changes to them are no longer staged. **Still open** (and now also pushed to
+`origin/prod`): the files remain **tracked in history**, so they must be removed
+from history and the **service-account key rotated regardless** (it has been
+exposed). Also still load the credential path from an environment variable instead
+of the fixed relative path in `apps/backend/config/firebase.py`.
 
-**Clean seam.** `apps/backend/config/firebase.py` (credential loading); repo
-`.gitignore` and history rewrite.
+**Clean seam.** `apps/backend/config/firebase.py` (credential loading); `git
+filter-repo`/BFG history rewrite + key rotation.
 
 ---
 
@@ -216,14 +202,15 @@ instead of a fixed relative path in `apps/backend/config/firebase.py`.
 
 | # | Feature | Impact | Effort | Status |
 |---|---------|--------|--------|--------|
-| 1 | Real ML risk prediction | Core capability | High | Heuristic stub in place; clean seam ready |
+| 1 | Real ML risk prediction | Core capability | High | ✅ Done (in-process; 5 inputs still imputed) |
 | 2 | Backend auth & authz | Security / multi-tenant correctness | Medium–High | Empty stub files |
-| 6 | Secrets & config hygiene | Security | Low–Medium | Keys committed — rotate now |
+| 6 | Secrets & config hygiene | Security | Low–Medium | `.gitignore` added; history scrub + key rotation pending |
 | 3 | Notifications | UX | Medium | Decorative UI only |
 | 4 | Global search | UX | Medium | Decorative UI only |
 | 5 | Profile editing | UX | Low–Medium | Read-only |
 | 7 | Housekeeping stubs | Maintainability | Low | Leftover empties |
 
-> **Bottom line:** items **1 and 2** (plus rotating the leaked key in **6**) are the
-> only things blocking a genuinely "complete" / shippable build. **3–5 and 7** are
-> polish and hardening that the dev-mode app runs fine without.
+> **Bottom line:** with the ML model now wired in (**1**), the only things blocking a
+> genuinely "complete" / shippable build are **backend auth (2)** plus rotating the
+> leaked key + scrubbing history in **6**. **3–5 and 7** are polish and hardening
+> that the dev-mode app runs fine without.
