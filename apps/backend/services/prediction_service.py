@@ -9,8 +9,7 @@ never blocked.
 
 The public contract is unchanged from the original dev stub:
     predict_session_risk(session_data, patient_data=None) -> {
-        predictedAlbuminLoss, riskScore, riskLevel, recommendation,
-        risk_level, status,
+        riskScore, riskLevel, recommendation, risk_level, status,
     }
 
 NOTE: feature engineering here mirrors apps/ml-model/src/model_trainer.py.
@@ -241,7 +240,6 @@ def predict_session_risk(session_data, patient_data=None):
         level, risk_score = _heuristic_risk(albumin_loss, ktv, potassium)
 
     return {
-        "predictedAlbuminLoss": albumin_loss,
         "riskScore": risk_score,
         "riskLevel": _LEVEL_LABELS[level],
         "recommendation": _RECOMMENDATIONS[level],

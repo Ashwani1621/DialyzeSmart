@@ -94,21 +94,8 @@ function EditSessionDialog({
 
       setLoading(true);
 
-      await updateSession(
-
-        session.sessionId,
-
-        {
-
-          ...formData,
-
-          albuminLoss:
-            Number(formData.albuminBefore) -
-            Number(formData.albuminAfter),
-
-        }
-
-      );
+      // albuminLoss is computed and stored server-side (single source of truth).
+      await updateSession(session.sessionId, formData);
 
       await refreshSessions();
 
@@ -583,19 +570,18 @@ function EditSessionDialog({
 </div>
 
 {/* =========================
-    AI PREDICTION
+    AI RISK ASSESSMENT
 ========================= */}
 
 <div className="rounded-2xl border bg-slate-50 p-6">
 
   <h2 className="mb-2 text-2xl font-semibold">
-    AI Prediction
+    AI Risk Assessment
   </h2>
 
   <p className="rounded-xl bg-blue-50 p-4 text-sm text-blue-700">
-    Predicted albumin loss, risk score, risk level and recommendation are
-    recomputed automatically from the lab and machine values when the
-    session is saved.
+    Risk score, risk level and recommendation are recomputed automatically
+    from the recorded lab and machine values when the session is saved.
   </p>
 
 </div>

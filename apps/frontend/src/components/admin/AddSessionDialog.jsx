@@ -515,18 +515,18 @@ function AddSessionDialog({
 
           </div>
 
-          {/* AI PREDICTION */}
+          {/* AI RISK ASSESSMENT */}
 
           <div>
 
             <h2 className="mb-2 text-xl font-bold">
-              AI Prediction
+              AI Risk Assessment
             </h2>
 
             <p className="rounded-xl bg-blue-50 p-4 text-sm text-blue-700">
-              Predicted albumin loss, risk score, risk level and
-              recommendation are computed automatically from the lab and
-              machine values above when the session is saved.
+              Risk score, risk level and recommendation are computed
+              automatically from the recorded lab and machine values above
+              when the session is saved.
             </p>
 
           </div>

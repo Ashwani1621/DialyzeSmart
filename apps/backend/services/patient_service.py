@@ -411,9 +411,9 @@ def create_session(patient_uid, data):
 
         "albuminAfter": data["albuminAfter"],
 
-        "albuminLoss":
-            data["albuminBefore"] -
-            data["albuminAfter"],
+        "albuminLoss": round(
+            float(data["albuminBefore"]) - float(data["albuminAfter"]), 3
+        ),
 
         "hemoglobin": data["hemoglobin"],
 
@@ -430,9 +430,6 @@ def create_session(patient_uid, data):
         "ktv": data["ktv"],
 
         # AI (computed server-side)
-
-        "predictedAlbuminLoss":
-            prediction["predictedAlbuminLoss"],
 
         "riskScore": prediction["riskScore"],
 
@@ -531,7 +528,7 @@ def update_session(session_id, data):
 
         "albuminBefore": albumin_before,
         "albuminAfter": albumin_after,
-        "albuminLoss": albumin_before - albumin_after,
+        "albuminLoss": round(albumin_before - albumin_after, 3),
 
         "hemoglobin": float(data["hemoglobin"]),
         "potassium": float(data["potassium"]),
@@ -543,7 +540,6 @@ def update_session(session_id, data):
 
         # AI (computed server-side)
 
-        "predictedAlbuminLoss": prediction["predictedAlbuminLoss"],
         "riskScore": prediction["riskScore"],
         "riskLevel": prediction["riskLevel"],
         "recommendation": prediction["recommendation"],

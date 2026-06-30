@@ -6,7 +6,6 @@ import {
   Pencil,
   Trash2,
   Calendar,
-  Clock,
   Activity,
   Gauge,
 } from "lucide-react";
@@ -183,11 +182,11 @@ function SessionAccordion({ session, refreshSessions }) {
               {/* AI */}
 
               <div>
-                <h3 className="mb-4 text-xl font-semibold">AI Prediction</h3>
+                <h3 className="mb-4 text-xl font-semibold">AI Risk Assessment</h3>
 
                 <Row
-                  label="Predicted Albumin Loss"
-                  value={session.predictedAlbuminLoss}
+                  label="Albumin Loss"
+                  value={session.albuminLoss}
                 />
 
                 <Row label="Risk Score" value={session.riskScore} />

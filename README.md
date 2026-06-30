@@ -1,8 +1,8 @@
 # DialyzeSmart
 
 A hemodialysis patient-management platform with an admin console, a doctor
-portal, a patient portal, and an ML model that predicts per-session
-**nutritional / albumin-loss risk** (LOW / MEDIUM / HIGH).
+portal, a patient portal, and an ML model that classifies per-session
+**nutritional / albumin-loss risk** (LOW / MEDIUM / HIGH) for recorded sessions.
 
 
 
@@ -91,9 +91,12 @@ and take the caller's UID as a parameter. Token verification is deferred to
 production (see [`stubs.md`](./stubs.md)).
 
 **ML is wired in-process.** `services/prediction_service.py` loads the trained
-model once at import and computes `riskLevel` / `riskScore` /
-`predictedAlbuminLoss` / `recommendation` whenever a session is created or
-updated — see [ML risk prediction](#ml-risk-prediction).
+model once at import and computes `riskLevel` / `riskScore` / `recommendation`
+whenever a session is created or updated — see
+[ML risk prediction](#ml-risk-prediction). Note this is a **retrospective risk
+assessment** of a recorded (completed) session, not a forecast — the model
+classifies risk and does not predict albumin loss (`albuminLoss` is the measured
+`albuminBefore − albuminAfter`).
 
 ---
 
