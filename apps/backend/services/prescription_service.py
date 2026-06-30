@@ -1,5 +1,6 @@
+from datetime import datetime, timezone
+
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
-from firebase_admin import firestore
 
 from config.firebase import db
 
@@ -47,16 +48,27 @@ def _serialize(doc):
     return p
 
 
+# Sort newest-first in Python so the query stays a single-field filter
+# (avoids needing a composite Firestore index for filter + order_by).
+
+def _newest_first(prescriptions):
+    oldest = datetime.min.replace(tzinfo=timezone.utc)
+    return sorted(
+        prescriptions,
+        key=lambda p: p.get("createdAt") or oldest,
+        reverse=True,
+    )
+
+
 def get_prescriptions_by_doctor(doctor_uid):
 
     docs = (
         db.collection("prescriptions")
         .where("doctorId", "==", doctor_uid)
-        .order_by("createdAt", direction=firestore.Query.DESCENDING)
         .stream()
     )
 
-    return [_serialize(doc) for doc in docs]
+    return _newest_first([_serialize(doc) for doc in docs])
 
 
 def get_prescriptions_by_patient(patient_uid):
@@ -64,11 +76,10 @@ def get_prescriptions_by_patient(patient_uid):
     docs = (
         db.collection("prescriptions")
         .where("patientId", "==", patient_uid)
-        .order_by("createdAt", direction=firestore.Query.DESCENDING)
         .stream()
     )
 
-    return [_serialize(doc) for doc in docs]
+    return _newest_first([_serialize(doc) for doc in docs])
 
 
 # ---------------------------------

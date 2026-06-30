@@ -220,19 +220,37 @@ def delete_patient(uid):
 
                 })
 
-    db.collection("users").document(uid).update({
+    # Hard delete the patient's sessions
 
-        "isActive": False,
-        "isDeleted": True,
-        "deletedAt": SERVER_TIMESTAMP
+    for session in db.collection("sessions").where(
+        "patientId", "==", uid
+    ).stream():
 
-    })
+        session.reference.delete()
 
-    db.collection("patients").document(uid).update({
+    # Hard delete the patient's prescriptions
 
-        "isDeleted": True
+    for prescription in db.collection("prescriptions").where(
+        "patientId", "==", uid
+    ).stream():
 
-    })
+        prescription.reference.delete()
+
+    # Hard delete the patient + user documents
+
+    db.collection("patients").document(uid).delete()
+
+    db.collection("users").document(uid).delete()
+
+    # Remove the Firebase Auth account
+
+    try:
+
+        auth.delete_user(uid)
+
+    except auth.UserNotFoundError:
+
+        pass
 
     return True
 

@@ -132,15 +132,26 @@ function PrescriptionDialog({
               <select
                 value={patientId}
                 onChange={(e) => setPatientId(e.target.value)}
-                className="w-full rounded-xl border p-3"
+                disabled={patients.length === 0}
+                className="w-full rounded-xl border p-3 disabled:cursor-not-allowed disabled:bg-slate-100"
               >
-                <option value="">Select patient</option>
+                <option value="">
+                  {patients.length === 0
+                    ? "No patients are assigned to you yet"
+                    : "Select patient"}
+                </option>
                 {patients.map((p) => (
                   <option key={p.uid} value={p.uid}>
                     {p.patientName}
                   </option>
                 ))}
               </select>
+              {patients.length === 0 && (
+                <p className="mt-2 text-sm text-slate-500">
+                  Ask an admin to assign patients to you before creating a
+                  prescription.
+                </p>
+              )}
             </div>
           )}
 
@@ -218,7 +229,11 @@ function PrescriptionDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} className="min-w-40">
+            <Button
+              type="submit"
+              disabled={loading || (!isEdit && patients.length === 0)}
+              className="min-w-40"
+            >
               {loading ? "Saving..." : isEdit ? "Update" : "Create"}
             </Button>
           </div>

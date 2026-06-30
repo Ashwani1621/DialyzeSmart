@@ -90,16 +90,42 @@ def change_doctor_status(uid, is_active):
 
 def delete_doctor(uid):
     """
-    Soft delete:
-    - Disable login
-    - Mark as deleted
-    - Keep historical records
+    Hard delete:
+    - Unassign the doctor's patients
+    - Remove the doctor's prescriptions
+    - Delete the doctor + user documents and the Auth account
     """
 
-    db.collection("users").document(uid).update({
-        "isActive": False,
-        "isDeleted": True,
-        "deletedAt": SERVER_TIMESTAMP
-    })
+    # Unassign patients so they don't point at a deleted doctor
+
+    for patient in db.collection("patients").where(
+        "doctorId", "==", uid
+    ).stream():
+
+        patient.reference.update({"doctorId": ""})
+
+    # Hard delete the doctor's prescriptions
+
+    for prescription in db.collection("prescriptions").where(
+        "doctorId", "==", uid
+    ).stream():
+
+        prescription.reference.delete()
+
+    # Hard delete the doctor + user documents
+
+    db.collection("doctors").document(uid).delete()
+
+    db.collection("users").document(uid).delete()
+
+    # Remove the Firebase Auth account
+
+    try:
+
+        auth.delete_user(uid)
+
+    except auth.UserNotFoundError:
+
+        pass
 
     return True
