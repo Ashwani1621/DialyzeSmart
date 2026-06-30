@@ -96,10 +96,10 @@ function Login() {
             <Activity className="h-10 w-10" />
             <div>
               <h3 className="text-xl font-semibold">
-                AI Predictions
+                AI Risk Assessment
               </h3>
               <p className="text-blue-100">
-                Predict dialysis nutrient loss intelligently.
+                Flag per-session nutritional risk intelligently.
               </p>
             </div>
           </div>

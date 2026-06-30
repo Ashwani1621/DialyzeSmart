@@ -13,10 +13,7 @@ function ForgotPassword() {
     await resetPassword(email);
     alert("Password reset email has been sent.");
   } catch (error) {
-  console.log(error);
-  console.log(error.code);
-  console.log(error.message);
-
+  console.error(error);
   alert(error.message);
 }
 };

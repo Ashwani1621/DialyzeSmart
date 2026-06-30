@@ -13,4 +13,12 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  server: {
+    // Use polling instead of native inotify watchers to avoid
+    // "ENOSPC: System limit for number of file watchers reached".
+    watch: {
+      usePolling: true,
+      interval: 300,
+    },
+  },
 });

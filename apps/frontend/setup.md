@@ -42,6 +42,12 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 ```
 
+Optionally override the backend API base URL (defaults to `http://127.0.0.1:5000`):
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:5000
+```
+
 All frontend environment variables used by Vite must start with `VITE_`.
 
 Do not commit real `.env` values to version control.
@@ -103,8 +109,8 @@ Runs ESLint.
 
 ## Development Notes
 
-- The API base URL is currently hardcoded in `src/services/api.js`.
-- If the backend runs on a different host or port, update `baseURL` in `src/services/api.js`.
+- The API base URL comes from `VITE_API_BASE_URL` in `.env` (falling back to `http://127.0.0.1:5000`), read in `src/services/api.js`.
+- If the backend runs on a different host or port, set `VITE_API_BASE_URL` and restart the dev server.
 - Restart the Vite dev server after changing `.env` values.
 - Keep the backend and frontend running in separate terminals during development.
 

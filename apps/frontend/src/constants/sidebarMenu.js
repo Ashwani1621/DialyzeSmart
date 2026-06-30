@@ -3,11 +3,9 @@ import {
   UserCog,
   Users,
   FileText,
-  ChartColumn,
   ClipboardList,
   UserRound,
-  Settings,
- CircleHelp,
+  Activity,
   LogOut,
 } from "lucide-react";
 
@@ -37,22 +35,12 @@ export const SIDEBAR_MENU = {
         icon: FileText,
       },
       {
-        title: "Analytics",
-        path: "/admin/analytics",
-        icon: ChartColumn,
+        title: "Profile",
+        path: "/admin/profile",
+        icon: UserRound,
       },
     ],
     account: [
-      {
-        title: "Settings",
-        path: "/settings",
-        icon: Settings,
-      },
-      {
-        title: "Help",
-        path: "/help",
-        icon: CircleHelp,
-      },
       {
         title: "Logout",
         path: "/logout",
@@ -74,17 +62,22 @@ export const SIDEBAR_MENU = {
         icon: Users,
       },
       {
+        title: "Sessions",
+        path: "/doctor/sessions",
+        icon: Activity,
+      },
+      {
         title: "Prescriptions",
         path: "/doctor/prescriptions",
         icon: ClipboardList,
       },
+      {
+        title: "Profile",
+        path: "/doctor/profile",
+        icon: UserRound,
+      },
     ],
     account: [
-      {
-        title: "Settings",
-        path: "/settings",
-        icon: Settings,
-      },
       {
         title: "Logout",
         path: "/logout",
@@ -101,6 +94,11 @@ export const SIDEBAR_MENU = {
         icon: LayoutDashboard,
       },
       {
+        title: "Sessions",
+        path: "/patient/sessions",
+        icon: Activity,
+      },
+      {
         title: "Prescriptions",
         path: "/patient/prescriptions",
         icon: ClipboardList,
@@ -112,11 +110,6 @@ export const SIDEBAR_MENU = {
       },
     ],
     account: [
-      {
-        title: "Settings",
-        path: "/settings",
-        icon: Settings,
-      },
       {
         title: "Logout",
         path: "/logout",

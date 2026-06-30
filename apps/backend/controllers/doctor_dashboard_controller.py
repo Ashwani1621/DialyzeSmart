@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import request, jsonify
 
 from services.doctor_dashboard_service import (
     get_doctor_dashboard,

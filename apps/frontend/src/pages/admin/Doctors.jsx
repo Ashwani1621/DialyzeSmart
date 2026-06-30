@@ -8,7 +8,7 @@ import AddDoctorDialog from "../../components/admin/AddDoctorDialog";
 import DoctorProfileDialog from "../../components/admin/DoctorProfileDialog";
 import EditDoctorDialog from "../../components/admin/EditDoctorDialog";
 import DeleteDoctorDialog from "../../components/admin/DeleteDoctorDialog";
-import { getDoctors } from "../../services/doctorService";
+import { getDoctors, changeDoctorStatus } from "../../services/doctorService";
 
 function Doctors() {
   const [doctors, setDoctors] = useState([]);
@@ -25,9 +25,6 @@ function Doctors() {
   const loadDoctors = async () => {
     try {
       const res = await getDoctors();
-
-      console.log("Full API Response:", res);
-      console.log("Doctors Data:", res.data);
 
       setDoctors(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
@@ -72,8 +69,13 @@ function Doctors() {
             setSelectedDoctor(doctor);
             setDeleteOpen(true);
           }}
-          onRevoke={(doctor) => {
-            console.log("Revoke Doctor", doctor);
+          onRevoke={async (doctor) => {
+            try {
+              await changeDoctorStatus(doctor.uid, !doctor.isActive);
+              await loadDoctors();
+            } catch (err) {
+              console.error(err);
+            }
           }}
         />
 

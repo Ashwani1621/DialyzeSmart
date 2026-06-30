@@ -2,6 +2,27 @@ from firebase_admin import auth
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 from firebase_admin import firestore
 from config.firebase import db
+from services.prediction_service import predict_session_risk
+
+
+def _opt_num(value):
+    """Float when present, else None (for optional lab fields)."""
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _flag(value):
+    """Coerce a comorbidity flag to 0/1 (defaults to 0 when absent)."""
+    if isinstance(value, str):
+        return 1 if value.strip().lower() in ("1", "true", "yes", "y") else 0
+    try:
+        return 1 if float(value) >= 0.5 else 0
+    except (TypeError, ValueError):
+        return 0
 
 
 # -----------------------------
@@ -50,6 +71,12 @@ def create_patient(data):
         "weight": data["weight"],
 
         "diagnosis": data["diagnosis"],
+
+        "diabetes": _flag(data.get("diabetes")),
+
+        "hypertension": _flag(data.get("hypertension")),
+
+        "cardiovascular_disease": _flag(data.get("cardiovascular_disease")),
 
         "doctorId": "",
         
@@ -150,7 +177,10 @@ def update_patient(uid, data):
         "bloodGroup": data["bloodGroup"],
         "height": data["height"],
         "weight": data["weight"],
-        "diagnosis": data["diagnosis"]
+        "diagnosis": data["diagnosis"],
+        "diabetes": _flag(data.get("diabetes")),
+        "hypertension": _flag(data.get("hypertension")),
+        "cardiovascular_disease": _flag(data.get("cardiovascular_disease"))
 
     })
 
@@ -190,19 +220,37 @@ def delete_patient(uid):
 
                 })
 
-    db.collection("users").document(uid).update({
+    # Hard delete the patient's sessions
 
-        "isActive": False,
-        "isDeleted": True,
-        "deletedAt": SERVER_TIMESTAMP
+    for session in db.collection("sessions").where(
+        "patientId", "==", uid
+    ).stream():
 
-    })
+        session.reference.delete()
 
-    db.collection("patients").document(uid).update({
+    # Hard delete the patient's prescriptions
 
-        "isDeleted": True
+    for prescription in db.collection("prescriptions").where(
+        "patientId", "==", uid
+    ).stream():
 
-    })
+        prescription.reference.delete()
+
+    # Hard delete the patient + user documents
+
+    db.collection("patients").document(uid).delete()
+
+    db.collection("users").document(uid).delete()
+
+    # Remove the Firebase Auth account
+
+    try:
+
+        auth.delete_user(uid)
+
+    except auth.UserNotFoundError:
+
+        pass
 
     return True
 
@@ -315,6 +363,8 @@ def create_session(patient_uid, data):
 
     session_ref = db.collection("sessions").document()
 
+    prediction = predict_session_risk(data, patient.to_dict())
+
     session_ref.set({
 
         "patientId": patient_uid,
@@ -361,13 +411,17 @@ def create_session(patient_uid, data):
 
         "albuminAfter": data["albuminAfter"],
 
-        "albuminLoss":
-            data["albuminBefore"] -
-            data["albuminAfter"],
+        "albuminLoss": round(
+            float(data["albuminBefore"]) - float(data["albuminAfter"]), 3
+        ),
 
         "hemoglobin": data["hemoglobin"],
 
         "potassium": data["potassium"],
+
+        "phosphorus": data.get("phosphorus"),
+
+        "crp": data.get("crp"),
 
         "creatinine": data["creatinine"],
 
@@ -375,17 +429,14 @@ def create_session(patient_uid, data):
 
         "ktv": data["ktv"],
 
-        # AI
+        # AI (computed server-side)
 
-        "predictedAlbuminLoss":
-            data["predictedAlbuminLoss"],
+        "riskScore": prediction["riskScore"],
 
-        "riskScore": data["riskScore"],
-
-        "riskLevel": data["riskLevel"],
+        "riskLevel": prediction["riskLevel"],
 
         "recommendation":
-            data["recommendation"],
+            prediction["recommendation"],
 
         "createdAt": SERVER_TIMESTAMP
 
@@ -429,11 +480,23 @@ def update_session(session_id, data):
 
     session_ref = db.collection("sessions").document(session_id)
 
-    if not session_ref.get().exists:
+    session_snap = session_ref.get()
+
+    if not session_snap.exists:
         raise Exception("Session not found.")
 
     albumin_before = float(data.get("albuminBefore", 0))
     albumin_after = float(data.get("albuminAfter", 0))
+
+    # Pull the owning patient doc so the model gets age/weight/comorbidities.
+    patient_data = {}
+    patient_id = session_snap.to_dict().get("patientId")
+    if patient_id:
+        patient_snap = db.collection("patients").document(patient_id).get()
+        if patient_snap.exists:
+            patient_data = patient_snap.to_dict()
+
+    prediction = predict_session_risk(data, patient_data)
 
     session_ref.update({
 
@@ -465,20 +528,21 @@ def update_session(session_id, data):
 
         "albuminBefore": albumin_before,
         "albuminAfter": albumin_after,
-        "albuminLoss": albumin_before - albumin_after,
+        "albuminLoss": round(albumin_before - albumin_after, 3),
 
         "hemoglobin": float(data["hemoglobin"]),
         "potassium": float(data["potassium"]),
+        "phosphorus": _opt_num(data.get("phosphorus")),
+        "crp": _opt_num(data.get("crp")),
         "creatinine": float(data["creatinine"]),
         "urea": float(data["urea"]),
         "ktv": float(data["ktv"]),
 
-        # AI
+        # AI (computed server-side)
 
-        "predictedAlbuminLoss": float(data["predictedAlbuminLoss"]),
-        "riskScore": float(data["riskScore"]),
-        "riskLevel": data["riskLevel"],
-        "recommendation": data["recommendation"],
+        "riskScore": prediction["riskScore"],
+        "riskLevel": prediction["riskLevel"],
+        "recommendation": prediction["recommendation"],
 
     })
 
