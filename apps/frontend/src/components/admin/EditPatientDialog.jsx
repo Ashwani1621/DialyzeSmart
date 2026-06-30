@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Dialog,
@@ -25,6 +25,9 @@ function EditPatientDialog({ open, setOpen, patient, refreshPatients }) {
     diagnosis: "",
     height: "",
     weight: "",
+    diabetes: "0",
+    hypertension: "0",
+    cardiovascular_disease: "0",
   });
 
   const handleOpenChange = (isOpen) => {
@@ -38,6 +41,9 @@ function EditPatientDialog({ open, setOpen, patient, refreshPatients }) {
         diagnosis: patient.diagnosis ?? "",
         height: patient.height ?? "",
         weight: patient.weight ?? "",
+        diabetes: String(patient.diabetes ?? 0),
+        hypertension: String(patient.hypertension ?? 0),
+        cardiovascular_disease: String(patient.cardiovascular_disease ?? 0),
       });
     }
 
@@ -62,6 +68,9 @@ function EditPatientDialog({ open, setOpen, patient, refreshPatients }) {
         age: Number(formData.age),
         height: Number(formData.height),
         weight: Number(formData.weight),
+        diabetes: Number(formData.diabetes),
+        hypertension: Number(formData.hypertension),
+        cardiovascular_disease: Number(formData.cardiovascular_disease),
       });
 
       await refreshPatients();
@@ -197,6 +206,60 @@ function EditPatientDialog({ open, setOpen, patient, refreshPatients }) {
                 value={formData.diagnosis}
                 onChange={handleChange}
               />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="mb-5 text-lg font-semibold">Comorbidities</h2>
+
+            <div className="grid grid-cols-3 gap-6">
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Diabetes
+                </label>
+
+                <select
+                  name="diabetes"
+                  value={formData.diabetes}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border p-3"
+                >
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Hypertension
+                </label>
+
+                <select
+                  name="hypertension"
+                  value={formData.hypertension}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border p-3"
+                >
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Cardiovascular Disease
+                </label>
+
+                <select
+                  name="cardiovascular_disease"
+                  value={formData.cardiovascular_disease}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border p-3"
+                >
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
             </div>
           </div>
 

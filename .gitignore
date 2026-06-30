@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+myprojectenv/
+
+# Secrets — never commit
+.env
+*.env
+apps/backend/firebase-adminsdk.json
+apps/backend/config/firebase-key.json
+
+# Build output
+dist/
+build/
+
+# Logs / OS
+*.log
+.DS_Store

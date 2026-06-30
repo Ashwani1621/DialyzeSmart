@@ -7,6 +7,9 @@ from routes.dashboard_routes import dashboard_bp
 from routes.doctor_dashboard_routes import (
     doctor_dashboard_bp
 )
+from routes.patient_portal_routes import patient_portal_bp
+from routes.doctor_routes import doctor_bp
+from routes.prescription_routes import prescription_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -17,6 +20,9 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(
     doctor_dashboard_bp
 )
+app.register_blueprint(patient_portal_bp)
+app.register_blueprint(doctor_bp)
+app.register_blueprint(prescription_bp)
 
 @app.route("/")
 def home():

@@ -1,15 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import Loading from "../pages/shared/Loading";
 
 function PrivateRoute({ children }) {
   const { currentUser, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center text-xl">
-        Loading...
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!currentUser) {

@@ -56,6 +56,12 @@ function AddPatientDialog({
 
     weight: "",
 
+    diabetes: "0",
+
+    hypertension: "0",
+
+    cardiovascular_disease: "0",
+
     doctorId: "",
 
   });
@@ -115,6 +121,12 @@ function AddPatientDialog({
         height: Number(formData.height),
 
         weight: Number(formData.weight),
+
+        diabetes: Number(formData.diabetes),
+
+        hypertension: Number(formData.hypertension),
+
+        cardiovascular_disease: Number(formData.cardiovascular_disease),
 
       });
 
@@ -277,6 +289,57 @@ function AddPatientDialog({
               value={formData.diagnosis}
               onChange={handleChange}
             />
+
+          </div>
+
+          <div>
+
+            <h3 className="mb-5 text-lg font-semibold">
+              Comorbidities
+            </h3>
+
+            <div className="grid grid-cols-3 gap-6">
+
+              <label className="flex flex-col gap-1 text-sm text-slate-600">
+                Diabetes
+                <select
+                  name="diabetes"
+                  value={formData.diabetes}
+                  onChange={handleChange}
+                  className="rounded-xl border p-3"
+                >
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </label>
+
+              <label className="flex flex-col gap-1 text-sm text-slate-600">
+                Hypertension
+                <select
+                  name="hypertension"
+                  value={formData.hypertension}
+                  onChange={handleChange}
+                  className="rounded-xl border p-3"
+                >
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </label>
+
+              <label className="flex flex-col gap-1 text-sm text-slate-600">
+                Cardiovascular Disease
+                <select
+                  name="cardiovascular_disease"
+                  value={formData.cardiovascular_disease}
+                  onChange={handleChange}
+                  className="rounded-xl border p-3"
+                >
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </label>
+
+            </div>
 
           </div>
 

@@ -27,11 +27,35 @@ export const deleteDoctor = async (uid) => {
   return response.data;
 };
 
+export const changeDoctorStatus = async (uid, isActive) => {
+  const response = await api.patch(
+    `/api/admin/doctors/${uid}/status`,
+    { isActive }
+  );
+
+  return response.data;
+};
+
 
 export const getDoctorDashboard = async (doctorId) => {
   const response = await api.get("/api/doctor/dashboard", {
     params: { doctorId },
   });
 
+  return response.data;
+};
+
+export const getDoctorPatients = async (uid) => {
+  const response = await api.get(`/api/doctor/${uid}/patients`);
+  return response.data;
+};
+
+export const getDoctorSessions = async (uid) => {
+  const response = await api.get(`/api/doctor/${uid}/sessions`);
+  return response.data;
+};
+
+export const getDoctorProfile = async (uid) => {
+  const response = await api.get(`/api/doctor/${uid}/profile`);
   return response.data;
 };

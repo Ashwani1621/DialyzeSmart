@@ -35,19 +35,11 @@ const getInitialData = (session) => ({
   albuminAfter: session?.albuminAfter || "",
   hemoglobin: session?.hemoglobin || "",
   potassium: session?.potassium || "",
+  phosphorus: session?.phosphorus ?? "",
+  crp: session?.crp ?? "",
   creatinine: session?.creatinine || "",
   urea: session?.urea || "",
   ktv: session?.ktv || "",
-
-  predictedAlbuminLoss:
-    session?.predictedAlbuminLoss || "",
-
-  riskScore: session?.riskScore || "",
-
-  riskLevel: session?.riskLevel || "",
-
-  recommendation:
-    session?.recommendation || "",
 });
 
 function EditSessionDialog({
@@ -502,6 +494,34 @@ function EditSessionDialog({
     <div>
 
       <label className="mb-2 block text-sm font-medium">
+        Phosphorus (mg/dL)
+      </label>
+
+      <Input
+        name="phosphorus"
+        value={formData.phosphorus}
+        onChange={handleChange}
+      />
+
+    </div>
+
+    <div>
+
+      <label className="mb-2 block text-sm font-medium">
+        CRP (mg/L)
+      </label>
+
+      <Input
+        name="crp"
+        value={formData.crp}
+        onChange={handleChange}
+      />
+
+    </div>
+
+    <div>
+
+      <label className="mb-2 block text-sm font-medium">
         Creatinine
       </label>
 
@@ -568,69 +588,15 @@ function EditSessionDialog({
 
 <div className="rounded-2xl border bg-slate-50 p-6">
 
-  <h2 className="mb-6 text-2xl font-semibold">
+  <h2 className="mb-2 text-2xl font-semibold">
     AI Prediction
   </h2>
 
-  <div className="grid grid-cols-4 gap-5">
-
-    <div>
-
-      <label className="mb-2 block text-sm font-medium">
-        Predicted Albumin Loss
-      </label>
-
-      <Input
-        name="predictedAlbuminLoss"
-        value={formData.predictedAlbuminLoss}
-        onChange={handleChange}
-      />
-
-    </div>
-
-    <div>
-
-      <label className="mb-2 block text-sm font-medium">
-        Risk Score
-      </label>
-
-      <Input
-        name="riskScore"
-        value={formData.riskScore}
-        onChange={handleChange}
-      />
-
-    </div>
-
-    <div>
-
-      <label className="mb-2 block text-sm font-medium">
-        Risk Level
-      </label>
-
-      <Input
-        name="riskLevel"
-        value={formData.riskLevel}
-        onChange={handleChange}
-      />
-
-    </div>
-
-    <div>
-
-      <label className="mb-2 block text-sm font-medium">
-        Recommendation
-      </label>
-
-      <Input
-        name="recommendation"
-        value={formData.recommendation}
-        onChange={handleChange}
-      />
-
-    </div>
-
-  </div>
+  <p className="rounded-xl bg-blue-50 p-4 text-sm text-blue-700">
+    Predicted albumin loss, risk score, risk level and recommendation are
+    recomputed automatically from the lab and machine values when the
+    session is saved.
+  </p>
 
 </div>
 {/* =========================

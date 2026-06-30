@@ -1,17 +1,17 @@
 from flask import jsonify
 
-from services.doctor_dashboard_service import (
-    get_doctor_patients,
-    get_doctor_sessions,
-    get_doctor_profile,
+from services.patient_portal_service import (
+    get_patient_dashboard,
+    get_patient_profile,
 )
+from services.patient_service import get_sessions
 
 
-def fetch_doctor_profile(uid):
+def fetch_patient_dashboard(uid):
 
     try:
 
-        data = get_doctor_profile(uid)
+        data = get_patient_dashboard(uid)
 
         return jsonify({
             "success": True,
@@ -26,11 +26,11 @@ def fetch_doctor_profile(uid):
         }), 500
 
 
-def fetch_doctor_patients(uid):
+def fetch_patient_sessions(uid):
 
     try:
 
-        data = get_doctor_patients(uid)
+        data = get_sessions(uid)
 
         return jsonify({
             "success": True,
@@ -45,11 +45,11 @@ def fetch_doctor_patients(uid):
         }), 500
 
 
-def fetch_doctor_sessions(uid):
+def fetch_patient_profile(uid):
 
     try:
 
-        data = get_doctor_sessions(uid)
+        data = get_patient_profile(uid)
 
         return jsonify({
             "success": True,
