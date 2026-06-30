@@ -4,12 +4,7 @@ A hemodialysis patient-management platform with an admin console, a doctor
 portal, a patient portal, and an ML model that predicts per-session
 **nutritional / albumin-loss risk** (LOW / MEDIUM / HIGH).
 
-> ⚠️ **Development-mode project.** The app is feature-complete for local
-> development across all three roles, but a few capabilities are stubbed and
-> several production concerns (backend auth, secret rotation) are intentionally
-> deferred. See [Feature status](#feature-status) and [`stubs.md`](./stubs.md).
 
----
 
 ## Overview
 
