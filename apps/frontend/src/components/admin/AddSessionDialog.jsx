@@ -32,6 +32,8 @@ function AddSessionDialog({
     dialysateFlowRate: "",
     ufGoal: "",
     ufVolume: "",
+    transmembranePressure: "",
+    membraneFlux: "",
 
     heartRate: "",
     systolicBP: "",
@@ -48,6 +50,9 @@ function AddSessionDialog({
     creatinine: "",
     urea: "",
     ktv: "",
+
+    proteinIntake: "",
+    calorieIntake: "",
   });
 
   const handleChange = (e) => {
@@ -78,6 +83,14 @@ function AddSessionDialog({
 
       ufVolume: Number(formData.ufVolume),
 
+      transmembranePressure:
+        formData.transmembranePressure === ""
+          ? null
+          : Number(formData.transmembranePressure),
+
+      membraneFlux:
+        formData.membraneFlux === "" ? null : Number(formData.membraneFlux),
+
       heartRate: Number(formData.heartRate),
 
       systolicBP: Number(formData.systolicBP),
@@ -105,6 +118,12 @@ function AddSessionDialog({
       urea: Number(formData.urea),
 
       ktv: Number(formData.ktv),
+
+      proteinIntake:
+        formData.proteinIntake === "" ? null : Number(formData.proteinIntake),
+
+      calorieIntake:
+        formData.calorieIntake === "" ? null : Number(formData.calorieIntake),
 
     };
 
@@ -343,10 +362,36 @@ function AddSessionDialog({
 
               </div>
 
+              <div>
+
+                <label>Transmembrane Pressure (mmHg)</label>
+
+                <Input
+                  name="transmembranePressure"
+                  placeholder="mmHg"
+                  value={formData.transmembranePressure}
+                  onChange={handleChange}
+                />
+
+              </div>
+
+              <div>
+
+                <label>Membrane Flux / KUf (mL/hr/mmHg)</label>
+
+                <Input
+                  name="membraneFlux"
+                  placeholder="mL/hr/mmHg"
+                  value={formData.membraneFlux}
+                  onChange={handleChange}
+                />
+
+              </div>
+
             </div>
 
-          </div>          
-          
+          </div>
+
           {/* VITAL SIGNS */}
 
           <div>
@@ -507,6 +552,42 @@ function AddSessionDialog({
                 <Input
                   name="ktv"
                   value={formData.ktv}
+                  onChange={handleChange}
+                />
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* NUTRITIONAL INTAKE */}
+
+          <div>
+
+            <h2 className="mb-6 text-xl font-bold">
+              Nutritional Intake
+            </h2>
+
+            <div className="grid grid-cols-4 gap-6">
+
+              <div>
+                <label>Protein Intake (g)</label>
+
+                <Input
+                  name="proteinIntake"
+                  placeholder="g/day"
+                  value={formData.proteinIntake}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label>Calorie Intake (kcal)</label>
+
+                <Input
+                  name="calorieIntake"
+                  placeholder="kcal/day"
+                  value={formData.calorieIntake}
                   onChange={handleChange}
                 />
               </div>

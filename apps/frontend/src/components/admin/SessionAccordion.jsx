@@ -125,6 +125,16 @@ function SessionAccordion({ session, refreshSessions }) {
                     <Row label="UF Goal" value={session.ufGoal} />
 
                     <Row label="UF Removed" value={session.ufVolume} />
+
+                    <Row
+                      label="Transmembrane Pressure"
+                      value={session.transmembranePressure}
+                    />
+
+                    <Row
+                      label="Membrane Flux (KUf)"
+                      value={session.membraneFlux}
+                    />
                   </div>
                 </div>
               </div>
@@ -175,6 +185,28 @@ function SessionAccordion({ session, refreshSessions }) {
                     <Row label="Urea" value={session.urea} />
 
                     <Row label="Kt/V" value={session.ktv} />
+                  </div>
+                </div>
+              </div>
+
+              {/* NUTRITIONAL INTAKE */}
+
+              <div>
+                <h3 className="mb-4 text-xl font-semibold">
+                  Nutritional Intake
+                </h3>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <Row
+                      label="Protein Intake (g)"
+                      value={session.proteinIntake}
+                    />
+
+                    <Row
+                      label="Calorie Intake (kcal)"
+                      value={session.calorieIntake}
+                    />
                   </div>
                 </div>
               </div>

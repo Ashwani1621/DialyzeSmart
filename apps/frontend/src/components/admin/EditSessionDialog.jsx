@@ -24,6 +24,8 @@ const getInitialData = (session) => ({
   dialysateFlowRate: session?.dialysateFlowRate || "",
   ufGoal: session?.ufGoal || "",
   ufVolume: session?.ufVolume || "",
+  transmembranePressure: session?.transmembranePressure ?? "",
+  membraneFlux: session?.membraneFlux ?? "",
 
   heartRate: session?.heartRate || "",
   systolicBP: session?.systolicBP || "",
@@ -40,6 +42,9 @@ const getInitialData = (session) => ({
   creatinine: session?.creatinine || "",
   urea: session?.urea || "",
   ktv: session?.ktv || "",
+
+  proteinIntake: session?.proteinIntake ?? "",
+  calorieIntake: session?.calorieIntake ?? "",
 });
 
 function EditSessionDialog({
@@ -321,6 +326,36 @@ function EditSessionDialog({
 
     </div>
 
+    <div>
+
+      <label className="mb-2 block text-sm font-medium">
+        Transmembrane Pressure (mmHg)
+      </label>
+
+      <Input
+        name="transmembranePressure"
+        placeholder="mmHg"
+        value={formData.transmembranePressure}
+        onChange={handleChange}
+      />
+
+    </div>
+
+    <div>
+
+      <label className="mb-2 block text-sm font-medium">
+        Membrane Flux / KUf (mL/hr/mmHg)
+      </label>
+
+      <Input
+        name="membraneFlux"
+        placeholder="mL/hr/mmHg"
+        value={formData.membraneFlux}
+        onChange={handleChange}
+      />
+
+    </div>
+
   </div>
 
 </div>
@@ -562,6 +597,52 @@ function EditSessionDialog({
         ).toFixed(2)} g/dL
 
       </h2>
+
+    </div>
+
+  </div>
+
+</div>
+
+{/* =========================
+    NUTRITIONAL INTAKE
+========================= */}
+
+<div className="rounded-2xl border bg-slate-50 p-6">
+
+  <h2 className="mb-6 text-2xl font-semibold">
+    Nutritional Intake
+  </h2>
+
+  <div className="grid grid-cols-4 gap-5">
+
+    <div>
+
+      <label className="mb-2 block text-sm font-medium">
+        Protein Intake (g)
+      </label>
+
+      <Input
+        name="proteinIntake"
+        placeholder="g/day"
+        value={formData.proteinIntake}
+        onChange={handleChange}
+      />
+
+    </div>
+
+    <div>
+
+      <label className="mb-2 block text-sm font-medium">
+        Calorie Intake (kcal)
+      </label>
+
+      <Input
+        name="calorieIntake"
+        placeholder="kcal/day"
+        value={formData.calorieIntake}
+        onChange={handleChange}
+      />
 
     </div>
 

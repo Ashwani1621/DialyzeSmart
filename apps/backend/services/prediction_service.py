@@ -140,7 +140,11 @@ def _build_feature_frame(session_data, patient_data):
     kt_v = _opt_float(session_data.get("ktv"))
     age_years = _opt_float(patient_data.get("age"))
     crp_mg_l = _opt_float(session_data.get("crp"))
-    membrane_flux_kuf = None  # not captured -> imputed; crp_to_flux -> NaN
+    membrane_flux_kuf = _opt_float(session_data.get("membraneFlux"))
+
+    # UF rate is the same quantity as uf_intensity (volume per hour); derive it
+    # from captured fields instead of leaving it to the median imputer.
+    ultrafiltration_rate_ml_hr = _safe_div(total_uf_volume_ml, session_duration_hr)
 
     row = {
         "hemoglobin_g_dl": _opt_float(session_data.get("hemoglobin")),
@@ -148,10 +152,12 @@ def _build_feature_frame(session_data, patient_data):
         "phosphorus_mg_dl": _opt_float(session_data.get("phosphorus")),
         "blood_flow_rate_ml_min": _opt_float(session_data.get("bloodFlowRate")),
         "session_duration_hr": session_duration_hr,
-        "protein_intake_g": nan,
-        "calorie_intake_kcal": nan,
-        "transmembrane_pressure_mmhg": nan,
-        "ultrafiltration_rate_ml_hr": nan,
+        "protein_intake_g": _opt_float(session_data.get("proteinIntake")),
+        "calorie_intake_kcal": _opt_float(session_data.get("calorieIntake")),
+        "transmembrane_pressure_mmhg": _opt_float(
+            session_data.get("transmembranePressure")
+        ),
+        "ultrafiltration_rate_ml_hr": ultrafiltration_rate_ml_hr,
         "membrane_flux_kuf": membrane_flux_kuf,
         "kt_v": kt_v,
         "age_years": age_years,
