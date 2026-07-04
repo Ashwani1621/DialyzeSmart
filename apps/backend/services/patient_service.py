@@ -393,6 +393,10 @@ def create_session(patient_uid, data):
 
         "ufVolume": data["ufVolume"],
 
+        "transmembranePressure": _opt_num(data.get("transmembranePressure")),
+
+        "membraneFlux": _opt_num(data.get("membraneFlux")),
+
         # Vitals
 
         "heartRate": data["heartRate"],
@@ -428,6 +432,12 @@ def create_session(patient_uid, data):
         "urea": data["urea"],
 
         "ktv": data["ktv"],
+
+        # Nutritional intake
+
+        "proteinIntake": _opt_num(data.get("proteinIntake")),
+
+        "calorieIntake": _opt_num(data.get("calorieIntake")),
 
         # AI (computed server-side)
 
@@ -515,6 +525,8 @@ def update_session(session_id, data):
         "dialysateFlowRate": float(data["dialysateFlowRate"]),
         "ufGoal": float(data["ufGoal"]),
         "ufVolume": float(data["ufVolume"]),
+        "transmembranePressure": _opt_num(data.get("transmembranePressure")),
+        "membraneFlux": _opt_num(data.get("membraneFlux")),
 
         # Vitals
 
@@ -537,6 +549,11 @@ def update_session(session_id, data):
         "creatinine": float(data["creatinine"]),
         "urea": float(data["urea"]),
         "ktv": float(data["ktv"]),
+
+        # Nutritional intake
+
+        "proteinIntake": _opt_num(data.get("proteinIntake")),
+        "calorieIntake": _opt_num(data.get("calorieIntake")),
 
         # AI (computed server-side)
 
