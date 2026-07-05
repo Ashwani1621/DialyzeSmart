@@ -107,9 +107,7 @@ classifies risk and does not predict albumin loss (`albuminLoss` is the measured
 - A **Firebase project** with Firestore + Authentication enabled, and a
   service-account key saved as `apps/backend/firebase-adminsdk.json`
 
-> 🐧 **Heads-up:** the committed `apps/frontend/node_modules` and the backend
-> virtualenv were built on **Windows**. On Linux/macOS you must reinstall
-> dependencies (below) before anything will run.
+
 
 ## Setup & run
 
@@ -159,12 +157,9 @@ python src/model_trainer.py   # retrain → src/rf_balanced_model.pkl + src/feat
 python test_run.py            # demo prediction
 ```
 
-The committed `.pkl` was trained with **scikit-learn 1.9.0** (pinned in both
-`requirements.txt` files). If the backend can't unpickle it, retrain with
-`model_trainer.py` against your installed version — the backend falls back to a
-heuristic in the meantime.
 
----
+
+
 
 ## Feature status
 
@@ -187,7 +182,7 @@ heuristic in the meantime.
 | Notifications (navbar bell) | ❌ | decorative |
 | Global search (navbar) | ❌ | no handler |
 
-Full catalogue of what's stubbed and how to finish it: [`stubs.md`](./stubs.md).
+
 
 ## ML risk prediction
 
