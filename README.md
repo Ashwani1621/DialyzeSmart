@@ -181,7 +181,7 @@ heuristic in the meantime.
 | Patient portal — dashboard, sessions, profile | ✅ | Profile read-only |
 | Prescriptions (doctor write / patient read) | ✅ | full stack |
 | **ML risk prediction** | ✅ | real model in-process; see below |
-| ML feature coverage | ⚠️ | 13/18 inputs captured; 5 median-imputed |
+| ML feature coverage | ✅ | All 20 model features fed from real inputs (blank fields still median-imputed as a fallback) |
 | Profile editing | ⚠️ | view-only for all roles |
 | **Backend authentication** | ❌ | endpoints open; UID trusted as param |
 | Notifications (navbar bell) | ❌ | decorative |
@@ -200,9 +200,12 @@ service). `services/prediction_service.py`:
   field names and units (e.g. `duration` minutes → hours, `ufVolume` litres →
   mL) and recreating the engineered features (`uf_intensity`, `ktv_to_age`,
   `crp_to_flux`).
-- **Hybrid inputs:** comorbidities and phosphorus/CRP are captured in the admin
-  forms; the 5 harder fields (TMP, membrane flux, UF rate, protein/calorie
-  intake) are left blank and filled by the pipeline's median imputer.
+- **Full input coverage:** all 20 model features are populated from real data —
+  comorbidities from the patient doc, and labs, machine parameters (incl.
+  transmembrane pressure + membrane flux/KUf) and protein/calorie intake from
+  the session forms. The UF rate is derived from UF volume ÷ duration. Any field
+  left blank still falls back to the pipeline's median imputer, so partial
+  sessions keep scoring.
 - Returns risk level + a 0–100 score (from `predict_proba`) + a templated
   recommendation, and **falls back to a deterministic heuristic** if the model
   fails to load or predict — so development is never blocked.
@@ -210,22 +213,3 @@ service). `services/prediction_service.py`:
 The model feature contract, units, and risk thresholds are documented in
 [`apps/ml-model/context.md`](./apps/ml-model/context.md).
 
-## Security & secrets
-
-> 🔒 Do **not** commit or propagate: `apps/backend/firebase-adminsdk.json`,
-> `apps/backend/config/firebase-key.json`, `apps/backend/.env`,
-> `apps/frontend/.env`.
-
-Some of these were committed in the initial commit and remain in git history.
-They should be **removed from history and the service-account key rotated**.
-Backend endpoints are also currently unauthenticated. These are tracked as
-deferred production work in [`stubs.md`](./stubs.md).
-
-## Roadmap / known limitations
-
-The near-term path to a production-grade build (in priority order): **backend
-authentication & authorization**, **secret rotation**, then capturing the 5
-imputed ML inputs, plus polish (notifications, search, profile editing). Each
-item — with the exact file/function seam to change — is catalogued in
-[`stubs.md`](./stubs.md). Contributor/architecture guidance lives in
-[`CLAUDE.md`](./CLAUDE.md).
